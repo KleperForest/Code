@@ -30,6 +30,7 @@ void setup() {
 void loop() {
   if (miBT.available()) { // LEE BT y envia a Arduino
     DATO = miBT.read();
+    Serial.write(DATO);
     int Datonum = DATO - '0'; // Convertir char a entero
 
     if (DATO != 0){ // Verificar si está resiviendo un valor
