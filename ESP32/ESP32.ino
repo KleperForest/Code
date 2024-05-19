@@ -1,14 +1,23 @@
-#include <HardwareSerial.h>
+#include "BluetoothSerial.h"
 
-HardwareSerial mySerial(2); // Use UART2 (pins 16 and 17)
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+BluetoothSerial SerialBT;
 
 void setup() {
   Serial.begin(115200);
-  mySerial.begin(9600, SERIAL_8N1, 16, 17); // Configura la velocidad de comunicación con el HC-05
-  Serial.println("Enviando datos al Arduino Nano a través del HC-05");
+  SerialBT.begin("ESP32test"); //Bluetooth device name
+  Serial.println("The device started, now you can pair it with bluetooth!");
 }
 
-void loop() {
-  mySerial.println("Hola desde el ESP32");
-  delay(1000); // Envía un mensaje cada segundo
+void loop() {..............................................................
+  if (Serial.available()) {
+    SerialBT.write(Serial.read());
+  }
+  if (SerialBT.available()) {
+    Serial.write(SerialBT.read());
+  }
+  delay(20);
 }
