@@ -36,7 +36,7 @@ void loop() {
       digitalWrite(ENB, HIGH);
       digitalWrite(IN3, HIGH);
       digitalWrite(IN4, LOW);
-    } else {
+    } else if (!(DATO & 0x04)) { // Asegurar que el motor B se apague si el botón 3 tampoco está presionado
       digitalWrite(ENB, LOW);
     }
     
@@ -44,7 +44,7 @@ void loop() {
       digitalWrite(ENA, HIGH);
       digitalWrite(IN1, HIGH);
       digitalWrite(IN2, LOW);
-    } else {
+    } else if (!(DATO & 0x08)) { // Asegurar que el motor A se apague si el botón 4 tampoco está presionado
       digitalWrite(ENA, LOW);
     }
 
@@ -62,6 +62,41 @@ void loop() {
       digitalWrite(IN2, HIGH);
     } else if (!(DATO & 0x02)) { // Asegurar que el motor A se apague si el botón 2 tampoco está presionado
       digitalWrite(ENA, LOW);
+    }
+
+    // Combinaciones de botones
+    if ((DATO & 0x03) == 0x03) { // Botones 1 y 2
+      digitalWrite(ENB, HIGH);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+      digitalWrite(ENA, HIGH);
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+    } else if ((DATO & 0x05) == 0x05) { // Botones 1 y 3
+      digitalWrite(ENB, HIGH);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+      digitalWrite(ENA, HIGH);
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+    } else if ((DATO & 0x06) == 0x06) { // Botones 2 y 3
+      digitalWrite(ENB, HIGH);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+      digitalWrite(ENA, HIGH);
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+    } else if ((DATO & 0x09) == 0x09) { // Botones 1, 2 y 3
+      digitalWrite(ENB, HIGH);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+      digitalWrite(ENA, HIGH);
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+    } else {
+      // Apagar ambos motores si ninguna combinación de botones está activa
+      digitalWrite(ENA, LOW);
+      digitalWrite(ENB, LOW);
     }
   }
 }
