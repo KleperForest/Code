@@ -1,5 +1,3 @@
-// Bluetooth HC-05
-// L298M
 #include <SoftwareSerial.h>
 
 SoftwareSerial miBT(11, 10); // PINES RX Y TX
@@ -17,6 +15,7 @@ int ENB = 9;  // ON/OFF Motor B
 void setup() {
   // Velocidad de Modulo Bluetooth
   miBT.begin(38400);
+  Serial.begin(38400);
 
   // Asignar como salida todos los pines al L298N
   pinMode(IN1, OUTPUT);
@@ -31,71 +30,38 @@ void loop() {
   if (miBT.available()) { // LEE BT y envia a Arduino
     DATO = miBT.read();
     Serial.write(DATO);
-    int Datonum = DATO - '0'; // Convertir char a entero
+    
+    // Interpretar el byte recibido
+    if (DATO & 0x01) { // Bit 0: Botón 1
+      digitalWrite(ENB, HIGH);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+    } else {
+      digitalWrite(ENB, LOW);
+    }
+    
+    if (DATO & 0x02) { // Bit 1: Botón 2
+      digitalWrite(ENA, HIGH);
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+    } else {
+      digitalWrite(ENA, LOW);
+    }
 
-    if (DATO != 0){ // Verificar si está resiviendo un valor
+    if (DATO & 0x04) { // Bit 2: Botón 3
+      digitalWrite(ENB, HIGH);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+    } else if (!(DATO & 0x01)) { // Asegurar que el motor B se apague si el botón 1 tampoco está presionado
+      digitalWrite(ENB, LOW);
+    }
 
-    if(Datonum == 1 && Datonum == 2 ){
-        digitalWrite(ENB, HIGH); // Habilitamos motor B
-        digitalWrite(IN3, HIGH); // Configuramos segundo giro
-        digitalWrite(IN4, LOW);  // **************************
-   
-        digitalWrite(ENA, HIGH); // Habilitamos motor A
-        digitalWrite(IN1, HIGH); // Configuramos segundo giro
-        digitalWrite(IN2, LOW);  // **************************
-        
-        delay(1); // motor prendido 
-      }
-    if(Datonum == 3 && Datonum == 4){
-        digitalWrite(ENB, HIGH); // Habilitamos motor B
-        digitalWrite(IN3, LOW); // Configuramos segundo giro
-        digitalWrite(IN4, HIGH);  // **************************
-
-        digitalWrite(ENA, HIGH); // Habilitamos motor A
-        digitalWrite(IN1, LOW); // Configuramos segundo giro
-        digitalWrite(IN2, HIGH);  // **************************
-        delay(1); // motor prendido
-      }
-      
-    switch (Datonum) {
-      case 1:
-        digitalWrite(ENB, HIGH); // Habilitamos motor B
-        digitalWrite(IN3, HIGH); // Configuramos segundo giro
-        digitalWrite(IN4, LOW);  // **************************
-        digitalWrite(ENA, LOW);  // Apagamos motor A
-        delay(1); // motor prendido
-        break;
-
-      case 2:
-        digitalWrite(ENB, LOW);  // Apagamos motor B
-        digitalWrite(ENA, HIGH); // Habilitamos motor A
-        digitalWrite(IN1, HIGH); // Configuramos segundo giro
-        digitalWrite(IN2, LOW);  // **************************
-        delay(1); // motor prendido 
-        break;
-
-      case 3:
-        digitalWrite(ENB, HIGH); // Habilitamos motor B
-        digitalWrite(IN3, LOW); // Configuramos segundo giro
-        digitalWrite(IN4, HIGH);  // **************************
-        digitalWrite(ENA, LOW);  // Apagamos motor A
-        delay(15); // motor prendido 
-        break;
-
-      case 4:
-        digitalWrite(ENB, LOW);  // Apagamos motor B
-        digitalWrite(ENA, HIGH); // Habilitamos motor A
-        digitalWrite(IN1, LOW); // Configuramos segundo giro
-        digitalWrite(IN2, HIGH);  // **************************
-        delay(15); // motor prendido 
-        break;
-
-      default:
-        // Apagar ambos motores si el dato no es reconocido
-        digitalWrite(ENA, LOW);
-        digitalWrite(ENB, LOW);
-        break;
-    }}
-
+    if (DATO & 0x08) { // Bit 3: Botón 4
+      digitalWrite(ENA, HIGH);
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+    } else if (!(DATO & 0x02)) { // Asegurar que el motor A se apague si el botón 2 tampoco está presionado
+      digitalWrite(ENA, LOW);
+    }
   }
 }
